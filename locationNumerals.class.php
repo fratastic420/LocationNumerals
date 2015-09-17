@@ -25,19 +25,27 @@ abstract class LocationNumerals
     {
         $str = false;
         $value = $value == null ? $this->value : $value;
+        // loop through integers to widdle down -> start with z's work down !===== I think I got this
+        $remainder = false;
+        
+        
+        $str = LocationNumerals::traverseAbbreviation($str);
         return $str;
     }
     
     /*
      * @param string
-     *
+     * Method to take in location code and convert it to an integer
      * @return integer
      */
     public function locationToInteger($value = null)
     {
         $int = false;
         $value = $value == null ? $this->value : $value;
-        
+        for($i = 0; $i < strlen($value); $i++)
+        {
+            $int+=LocationNumerals::valueOfChar(substr($value,$i,1));
+        }
         return $int;
     }
     
@@ -51,7 +59,7 @@ abstract class LocationNumerals
     {
         $str = false;
         $value = $value == null ? $this->value : $value;
-        
+        $str = LocationNumerals::traverseAbbreviation($value);
         return $str;
     }
     
@@ -139,6 +147,40 @@ abstract class LocationNumerals
     {  
         if($value == null) return false;
         return strrev($value);
+    }
+    
+    /*
+     * @param integer
+     * @param integer
+     *
+     * @return 
+     *
+     */
+    protected function reversePow($num, $base)
+    {
+        return log($num) / log($base);
+    }
+    
+    /*
+     * @param string
+     * 
+     * @return integer
+     *
+     */
+    protected function valueOfChar($value = null)
+    {
+        $pos = strpos($this->alphaBet, $value);
+        return pow(2, $pos);
+    }
+    
+    /*
+     *
+     * Just some error handling for bad input
+     *
+     */
+    protected function errorReport($messageCode)
+    {
+        
     }
     
     
