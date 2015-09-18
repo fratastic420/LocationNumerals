@@ -1,19 +1,22 @@
 <?php
 
-abstract class LocationNumerals
+class LocationNumerals
 {
     protected $value;
     protected $alphabet = 'abcdefghijklmnopqrstuvwxwz';
     protected $alphaVals = array();
+    public $result;
     public $errors = array();
     
     function __construct($value, $method = false)
     {
         $this->alphaVals = LocationNumerals::processAlphabet();
         $this->value = $value == null ? strtolower($value) : false;
-        if($value != false && $method != false && is_callable($method))
+        if($value != false && is_callable($method, true, $callable))
         {
-            return LocationNumerals::$method($value);
+
+             $this->result = LocationNumerals::$method($value);
+             return true;
         }
         return false;
     }
@@ -37,21 +40,15 @@ abstract class LocationNumerals
         if($value === false || $value == null) return LocationNumerals::errorReport("Error 1: Missing argument");
         if(!is_numeric($value)) return LocationNumerals::errorReport("Error 1A: Invalid Argument. Integers only");
         $remainder = $value;
+        $counter = 0;
         while($remainder>0)
         {
-            $key = LocationNumerals::closestKey($value, $this->alphaVals);
-            $pos = strpos($this->alphabet,$key);
-            for($i=$pos;$i>=0;$i--)
-            {
-                $c = substr($this->alphabet,$i,0);
-                if($remainder > $charVal = $this->alphaVals[$c])
-                {
-                    $remainder-=$charVal;
-                    $str.= $c;
-                }
-            }
+            $key = LocationNumerals::closestKey($remainder, $this->alphaVals);
+            $remainder = $remainder - $this->alphaVals[$key];
+            $str.= $key;
         }
-        return strrev($str);
+        $this->result = strrev($str);
+        return $this->result;
     }
     
     /*
@@ -65,12 +62,13 @@ abstract class LocationNumerals
         $value = $value == null ? $this->value : strtolower($value);
         LocationNumerals::errorReport('', true); //reset error codes if being invoked after instantiation
         if($value === false || $value == null) return LocationNumerals::errorReport("Error 2: Missing argument");
-        if(!LocationNumerals::validateString($value)) LocationNumerals::errorReport("Error 2A: Invalid argument. Characters of the english alphabet only.");
+        if(LocationNumerals::validateString($value) === false) return LocationNumerals::errorReport("Error 2A: Invalid argument. Characters of the english alphabet only.");
         for($i = 0; $i < strlen($value); $i++)
         {
             $c = substr($value,$i,1);
             $int+=$this->alphaVals[$c];
         }
+        $this->result = $int;
         return $int;
     }
     
@@ -89,54 +87,14 @@ abstract class LocationNumerals
         $value = $value == null ? $this->value : strtolower($value);
         LocationNumerals::errorReport('', true); //reset error codes if being invoked after instantiation
         if($value === false || $value == null) return LocationNumerals::errorReport("Error 3: Missing argument");
-        if(!LocationNumerals::validateString($value)) LocationNumerals::errorReport("Error 3A: Invalid argument. Characters of the english alphabet only.");
+        if(LocationNumerals::validateString($value) === false) return LocationNumerals::errorReport("Error 3A: Invalid argument. Characters of the english alphabet only.");
         $int = LocationNumerals::locationToInteger($value);
         $str = LocationNumerals::integerToAbbreviated($int);
-        //$str = LocationNumerals::traverseAbbreviation($value);
+        $this->result = $str;
         return $str;
     }
     
-      
-    
-    
-    /* Prolly dont need this either
-     * @param string
-     * Super ugly loop to traver a string and continually
-     * widdle down the string if two chars next to each other
-     * @return string
-     */
-    protected function traverseAbbreviation($value = null)
-    {
-        if($value == null) return false;
-        $noMatches = false;
-        
-        while(!$noMatches)
-        {
-            $str = $value;
-            for($i = 1; $i < strlen($value); $i++)
-            {
-                $char1 = substr($value, ($i - 1), 1);
-                $char2 = substr($value, $i, 1);
-                if($char1 == $char2)
-                {
-                    $newChar = substr($this->alphabet,strpos($this->alphaBet, $char1) + 1, 1);
-                    $partOne = $i < 2 ? "" : substr($value, 0, $i);
-                    $partTwo = substr($value, $i+1);
-                    $str = $partOne . $newChar . $partTwo;
-                    exit();
-                }
-            }
-            if($str == $value) $noMatches = true;
-            else
-            {
-                $value = $str;
-            }
-        }
-        return $value;
-        
-    }
-    
-     
+       
     /*
      * @param void
      * processes entire alphabet an creates an array of key values
@@ -172,12 +130,15 @@ abstract class LocationNumerals
      * @param boolean
      * Just some error handling for bad input
      * Increases the class error array, or clears it if send argument is true
+     * on increasing messagecode array sets the main class result to false
+     * so we can hide the result on error
      * @return boolean.
      */
     protected function errorReport($messageCode, $clear = false)
     {
         $this->errors[] = $messageCode;
         if($clear === true) $this->errors = array();
+        else $this->result = false;
         return false;
     }
     
@@ -195,7 +156,7 @@ abstract class LocationNumerals
         {  
             if($closest === null || abs($search - $closest) > abs($value - $search))
             {
-                if($value < $search)
+                if($value <= $search)
                 {
                     $closest = $value;
                     $closestKey = $key;
@@ -214,9 +175,9 @@ abstract class LocationNumerals
     protected function validateString($value)
     {
         $value = strtolower($value);
-        for($i=0; strlen($value); $i++)
+        for($i=0; $i < strlen($value); $i++)
         {
-            if(!in_array(substr($value,$i,1), $this->alphabet)) return false;
+            if(strpos($this->alphabet, substr($value,$i,1)) === false) return false;
         }
         return true;
     }
@@ -276,6 +237,8 @@ abstract class LocationNumerals
  *  name of the method and it is called, or the three main methods can be called
  *  after class invocation as well, and can pass a parameter, or not if you invoked
  *  the class with an initial value;
- *  
+ *
+ *
+ */
 
 ?>
