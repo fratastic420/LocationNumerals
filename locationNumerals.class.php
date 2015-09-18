@@ -7,6 +7,25 @@ class LocationNumerals
     protected $alphaVals = array();
     public $result;
     public $errors = array();
+    public $errorCodes = array(
+        "No Error: Init Code",
+        "Error 1: Missing argument",                       
+        "Error 1A: Invalid Argument. Integers only",
+        "Error 2: Missing argument",
+        "Error 2A: Invalid argument. Characters of the english alphabet only.",
+        "Error 3: Missing argument",
+        "Error 3A: Invalid argument. Characters of the english alphabet only.",
+        "Error 4: Missing Argument"
+    );
+    
+    /*
+     * @param mixed
+     *
+     * Start the class off with a initial value, and method if provided
+     * if method is valid it invokes
+     *
+     * @return boolean
+     */
     
     function __construct($value, $method = false)
     {
@@ -23,6 +42,7 @@ class LocationNumerals
     
     /*
      * @param integer
+     * 
      * This method operates under the assumption that by location arithmetic
      * there is no location character designation higher than z, so any value
      * realistic can be widdled down by seeing if value is greater than z, which
@@ -30,15 +50,15 @@ class LocationNumerals
      * and continues deprecating the value, in reality we are dealing with finite math here
      * just the numbers are calculator killers....
      *
-     * @return string 
+     * @return mixed 
      */
     public function integerToAbbreviated($value = null)
     {
         $str = false;
         $value = $value == null ? $this->value : $value;
-        LocationNumerals::errorReport('', true); //reset error codes if being invoked after instantiation
-        if($value === false || $value == null) return LocationNumerals::errorReport("Error 1: Missing argument");
-        if(!is_numeric($value)) return LocationNumerals::errorReport("Error 1A: Invalid Argument. Integers only");
+        LocationNumerals::errorReport($this->errorCodes[0], true); //reset error codes if being invoked after instantiation
+        if($value === false || $value == null) return LocationNumerals::errorReport($this->errorCodes[1]);
+        if(!is_numeric($value)) return LocationNumerals::errorReport($this->errorCodes[2]);
         $remainder = $value;
         $counter = 0;
         while($remainder>0)
@@ -53,6 +73,7 @@ class LocationNumerals
     
     /*
      * @param string
+     * 
      * Method to take in location code and convert it to an integer
      * @return integer
      */
@@ -60,9 +81,9 @@ class LocationNumerals
     {
         $int = false;
         $value = $value == null ? $this->value : strtolower($value);
-        LocationNumerals::errorReport('', true); //reset error codes if being invoked after instantiation
-        if($value === false || $value == null) return LocationNumerals::errorReport("Error 2: Missing argument");
-        if(LocationNumerals::validateString($value) === false) return LocationNumerals::errorReport("Error 2A: Invalid argument. Characters of the english alphabet only.");
+        LocationNumerals::errorReport($this->errorCodes[0], true); //reset error codes if being invoked after instantiation
+        if($value === false || $value == null) return LocationNumerals::errorReport($this->errorCodes[3]);
+        if(LocationNumerals::validateString($value) === false) return LocationNumerals::errorReport($this->errorCodes[4]);
         for($i = 0; $i < strlen($value); $i++)
         {
             $c = substr($value,$i,1);
@@ -85,9 +106,9 @@ class LocationNumerals
     {
         $str = false;
         $value = $value == null ? $this->value : strtolower($value);
-        LocationNumerals::errorReport('', true); //reset error codes if being invoked after instantiation
-        if($value === false || $value == null) return LocationNumerals::errorReport("Error 3: Missing argument");
-        if(LocationNumerals::validateString($value) === false) return LocationNumerals::errorReport("Error 3A: Invalid argument. Characters of the english alphabet only.");
+        LocationNumerals::errorReport($this->errorCodes[0], true); //reset error codes if being invoked after instantiation
+        if($value === false || $value == null) return LocationNumerals::errorReport($this->errorCodes[5]);
+        if(LocationNumerals::validateString($value) === false) return LocationNumerals::errorReport($this->errorCodes[6]);
         $int = LocationNumerals::locationToInteger($value);
         $str = LocationNumerals::integerToAbbreviated($int);
         $this->result = $str;
@@ -97,6 +118,7 @@ class LocationNumerals
        
     /*
      * @param void
+     * 
      * processes entire alphabet an creates an array of key values
      * as a means of limiting math executions of server
      *
@@ -114,13 +136,14 @@ class LocationNumerals
     
     /*
      * @param string
+     * 
      * Takes the char position of the alphabet raises to 2 to that power
      * @return integer
      *
      */
     protected function valueOfChar($value = null)
     {
-        if($value == null) return LocationNumerals::errorReport("Error 4: Missing Argument");
+        if($value == null) return LocationNumerals::errorReport($this->errorCodes[7]);
         $pos = strpos($this->alphabet, $value);
         return pow(2, $pos);
     }
@@ -128,10 +151,12 @@ class LocationNumerals
     /*
      * @param string
      * @param boolean
+     * 
      * Just some error handling for bad input
      * Increases the class error array, or clears it if send argument is true
      * on increasing messagecode array sets the main class result to false
      * so we can hide the result on error
+     * 
      * @return boolean.
      */
     protected function errorReport($messageCode, $clear = false)
@@ -145,7 +170,9 @@ class LocationNumerals
     /*
      * @param integer
      * @param associativeArray
+     * 
      * This function is find the best starting point that is less that search parameter
+     * 
      * @return array key
      */
     protected function closestKey($search, $array)
@@ -168,8 +195,10 @@ class LocationNumerals
     
     /*
      * @param string
+     * 
      * Parses a string an checks characters to make sure they are valid english
      * alphabet characters that are part of the class alphabet array
+     * 
      * @return boolean
      */
     protected function validateString($value)
