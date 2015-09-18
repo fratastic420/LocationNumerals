@@ -3,7 +3,7 @@
 abstract class LocationNumerals
 {
     protected $value;
-    protected $alphaBet = 'abcdefghijklmnopqrstuvwxwz';
+    protected $alphabet = 'abcdefghijklmnopqrstuvwxwz';
     
     function __construct($value, $method = false)
     {
@@ -17,7 +17,12 @@ abstract class LocationNumerals
     
     /*
      * @param integer
-     * This method will invoke the main method 
+     * This method operates under the assumption that by location arithmetic
+     * there is no location character designation higher than z, so any value
+     * realistic can be widdled down by seeing if value is greater than z, which
+     * can fetch that value on a function, records that char designation to a string
+     * and continues deprecating the value, in reality we are dealing with finite math here
+     * just the numbers are calculator killers....
      *
      * @return string 
      */
@@ -26,10 +31,19 @@ abstract class LocationNumerals
         $str = false;
         $value = $value == null ? $this->value : $value;
         // loop through integers to widdle down -> start with z's work down !===== I think I got this
-        $remainder = false;
-        
-        
-        $str = LocationNumerals::traverseAbbreviation($str);
+        $remainder = $value;
+        while($remainder>0)
+        {
+            for($i=25;$i>=0;$i--)
+            {
+                if($remainder > $charVal = LocationNumerals::valueOfChar(substr($this->alphabet,$i,0)))
+                {
+                    $remainder-=charVal;
+                    $str.= substr($this->alphabet,$i,0);
+                }
+            }
+        }
+        $str = LocationNumerals::flipStr($str);
         return $str;
     }
     
@@ -121,7 +135,7 @@ abstract class LocationNumerals
                 $char2 = substr($value, $i, 1);
                 if($char1 == $char2)
                 {
-                    $newChar = substr($this->alphaBet,strpos($this->alphaBet, $char1) + 1, 1);
+                    $newChar = substr($this->alphabet,strpos($this->alphaBet, $char1) + 1, 1);
                     $partOne = $i < 2 ? "" : substr($value, 0, $i);
                     $partTwo = substr($value, $i+1);
                     $str = $partOne . $newChar . $partTwo;
@@ -169,7 +183,7 @@ abstract class LocationNumerals
      */
     protected function valueOfChar($value = null)
     {
-        $pos = strpos($this->alphaBet, $value);
+        $pos = strpos($this->alphabet, $value);
         return pow(2, $pos);
     }
     
@@ -187,5 +201,9 @@ abstract class LocationNumerals
 }
 
 
+
+/*****************************************************
+ *  Some of my thoughts as I went about solving this
+ *  
 
 ?>
