@@ -1,4 +1,18 @@
 <?php
+/*
+ * LocationNumerals Class
+ * Author: Jared J Kramer
+ * jared@jaredjkramer.com
+ * 9.20.2015
+ *
+ * A php class to use location arithmetic to evaluate
+ * integers to their proper location numeral assignment,
+ * parse location numeral codes to integer values, and
+ * parse location numeral codes to the most abbreviated
+ * form
+ *
+ */
+
 
 class LocationNumerals
 {
@@ -219,12 +233,9 @@ class LocationNumerals
 /*****************************************************
  *  Some of my thoughts as I went about solving this
  *
- *  First, being the resourceful person I am, I consulted someone with a degree
- *  in Math because I had that ability. If you have a resource that can expedite
- *  solving a problem, you access it, I have no shame in admitting that. Plus
- *  simply talking to someone who loves math about math makes their day. I also
- *  did a kindness as well. However, they never even heard of this concept in
- *  all their math education :). But I realized that there is an absolute value
+ *  First, I had to wrap my head around this mathematic concept
+ *  as to make sure what I was about to code was solid logic.
+ *  I fundamentally realized that there is an absolute value
  *  of this arithmetic, nothing is greater than z. zz is simply two z's and never
  *  becomes az or anything else. Once I realized this, I had that moment of clarity,
  *  and this whole thing not only made sense but was quite easy, and could be done
